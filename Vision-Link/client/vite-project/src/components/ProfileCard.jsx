@@ -2,28 +2,35 @@ import React, { useContext, useState } from 'react';
 import '../styles/profileCard.css';
 import EditIcon from '@mui/icons-material/Edit';
 import { SocketContext } from "../context/SocketContext";
-import myImage from '../images/myImage.png'; // Adjust the path based on your project structure
+
+// Import the default profile image
+import defaultProfileImage from '../images/myImage.png';
 
 const ProfileCard = () => {
   const { socket } = useContext(SocketContext);
 
-  const username = localStorage.getItem('userName');
-  const email = localStorage.getItem('userEmail');
+  const storedUsername = localStorage.getItem('userName');
+  const storedEmail = localStorage.getItem('userEmail');
   const userId = localStorage.getItem('userId');
 
   const [isUpdate, setIsUpdate] = useState(false);
-  const [updateText, setUpdateText] = useState(username);
-  const [profileImg, setProfileImg] = useState(myImage);
+  const [updatedUsername, setUpdatedUsername] = useState(storedUsername);
 
   const handleUpdate = async () => {
     try {
-      await socket.emit("update-username", { updateText, userId });
+      // Emit an update request to the server
+      await socket.emit("update-user-details", {
+        userId,
+        updatedUsername,
+      });
+
+      // Optionally, update local storage
+      localStorage.setItem('userName', updatedUsername);
+
       setIsUpdate(false);
-      console.log("Username updated:", updateText);
-      // Optionally, provide user feedback for a successful update
+      console.log("User details updated:", updatedUsername);
     } catch (error) {
-      console.error("Error updating username:", error.message);
-      // Optionally, provide user feedback for an error during update
+      console.error("Error updating user details:", error.message);
     }
   };
 
@@ -34,16 +41,21 @@ const ProfileCard = () => {
       </button>
       <div className="profile-data">
         <div className="profile-img">
-          <img src={profileImg} alt="Profile" />
+          <img src={defaultProfileImage} alt="Profile" />
         </div>
         {!isUpdate ? (
           <div className="profile-info">
-            <p>Username: <span>{username}</span></p>
-            <p>Email Id: <span>{email}</span></p>
+            <p>Username: <span>{storedUsername}</span></p>
+            <p>Email Id: <span>{storedEmail}</span></p>
           </div>
         ) : (
           <div className="update-data">
-            <input type="text" placeholder='Update your name' value={updateText} onChange={(e) => setUpdateText(e.target.value)} />
+            <input
+              type="text"
+              placeholder='Update your name'
+              value={updatedUsername}
+              onChange={(e) => setUpdatedUsername(e.target.value)}
+            />
             <button id='update-btn' onClick={handleUpdate}>Update</button>
           </div>
         )}

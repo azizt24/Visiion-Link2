@@ -1,20 +1,50 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import '../styles/MeetData.css';
 import { SocketContext } from '../context/SocketContext';
 import { Link } from 'react-router-dom';
 
 const MeetData = () => {
   const [pastMeets, setPastMeets] = useState(false);
-  const { socket, myMeets } = useContext(SocketContext);
+  const { socket, myMeets, setMyMeets } = useContext(SocketContext);
 
   const [editRoomName, setEditRoomName] = useState('');
   const [editMeetDate, setEditMeetDate] = useState('none');
   const [editMeetTime, setEditMeetTime] = useState('none');
 
+  useEffect(() => {
+    const setMyMeetsState = (newMeets) => {
+      // Update state or context with new meets
+      setMyMeets(newMeets);
+    };
+
+    socket.on('room-deleted', ({ roomId }) => {
+      setMyMeetsState((prevMeets) => prevMeets.filter((meet) => meet._id !== roomId));
+    });
+
+    socket.on('meet-details-updated', ({ roomId }) => {
+      setMyMeetsState((prevMeets) =>
+        prevMeets.map((meet) =>
+          meet._id === roomId
+            ? {
+                ...meet,
+                roomName: editRoomName,
+                meetDate: editMeetDate,
+                meetTime: editMeetTime,
+              }
+            : meet
+        )
+      );
+    });
+
+    return () => {
+      socket.off('room-deleted');
+      socket.off('meet-details-updated');
+    };
+  }, [socket, editRoomName, editMeetDate, editMeetTime, setMyMeets]);
+
   const copyMeetIdToClipboard = (meetId) => {
     navigator.clipboard.writeText(meetId);
   };
-
   return (
     <div className="myMeets-body">
       <div className="myMeets-body-nav">
@@ -44,7 +74,6 @@ const MeetData = () => {
 
       <div className="myMeets-body-content">
         {!pastMeets ? (
-          // Upcoming meets
           <div className="upcoming-meet-content">
             {myMeets.length > 0 ? (
               myMeets.map((meet) => {
@@ -60,6 +89,7 @@ const MeetData = () => {
                   const day = String(date.getDate()).padStart(2, '0');
                   const hours = String(date.getHours()).padStart(2, '0');
                   const minutes = String(date.getMinutes()).padStart(2, '0');
+
                   if (currDate < date) {
                     return (
                       <div className="upcoming-meet-card" key={meet._id}>
@@ -86,6 +116,11 @@ const MeetData = () => {
                               className="editBtn"
                               data-bs-toggle="modal"
                               data-bs-target={`#editModal-${meet._id}`}
+                              onClick={() => {
+                                setEditRoomName(meet.roomName);
+                                setEditMeetDate(meet.meetDate);
+                                setEditMeetTime(meet.meetTime);
+                              }}
                             >
                               Edit
                             </button>
@@ -113,7 +148,6 @@ const MeetData = () => {
                             </p>
                           </div>
                         </div>
-                        {/* Bootstrap modal */}
                         <div
                           className="modal fade"
                           id={`editModal-${meet._id}`}
@@ -229,7 +263,6 @@ const MeetData = () => {
             )}
           </div>
         ) : (
-          // Past meetings
           <div className="past-meet-content">
             {myMeets.length > 0 ? (
               myMeets.map((meet) => {
