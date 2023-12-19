@@ -8,6 +8,6 @@ export default defineConfig({
     port: 3001,
   },
   optimizeDeps: {
-    include: ["react-router-dom"],
+    include: ["socket.io-client", "react-router-dom"],
   },
 });
