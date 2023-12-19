@@ -3,7 +3,7 @@ import { Dropdown, Card } from 'react-bootstrap';
 import { CgEnter } from 'react-icons/cg';
 import { RiVideoAddFill } from 'react-icons/ri';
 import { useNavigate } from 'react-router-dom';
-
+import meetingImage from '../images/meeting.jpg'
 import Groups2Icon from '@mui/icons-material/Groups2';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
  
