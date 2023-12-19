@@ -13,7 +13,7 @@ export const AuthContextProvider = ({children}) =>{
     const login = async (inputs) =>{
 
         try{
-            await axios.post('http://localhost:4000/auth/login', inputs)
+            await axios.post('https://vision-link-api.onrender.com/auth/login', inputs)
             .then( async (res)=>{
                 await localStorage.setItem('userToken', res.data.token);
                 await localStorage.setItem('userId', res.data.user._id);
@@ -34,7 +34,7 @@ export const AuthContextProvider = ({children}) =>{
     const register = async (inputs) =>{
 
         try{
-            await axios.post('http://localhost:4000/auth/register', inputs)
+            await axios.post('https://vision-link-api.onrender.com/auth/register', inputs)
             .then( async (res)=>{
                 await localStorage.setItem('userToken', res.data.token);
                 await localStorage.setItem('userId', res.data.user._id);
