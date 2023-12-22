@@ -7,6 +7,7 @@ import { Server } from "socket.io";
 import http from "http";
 
 import roomHandler from "./socket/roomHandler.js";
+
 import authRoutes from "./routes/auth.js";
 
 dotenv.config();
@@ -37,15 +38,7 @@ io.on("connection", (socket) => {
     console.log("user disconnected");
   });
 });
-
-// Check if MONGO_URL is defined
-if (!process.env.MONGO_URL) {
-  console.error("MONGO_URL is not defined in the environment variables.");
-  process.exit(1); // Exit the process with an error code
-}
-
 const PORT = process.env.PORT || 4000;
-
 mongoose
   .connect(process.env.MONGO_URL, {
     useNewUrlParser: true,

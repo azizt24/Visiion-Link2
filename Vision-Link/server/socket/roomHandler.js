@@ -1,7 +1,8 @@
 import Rooms from "../models/Rooms.js";
 import User from "../models/User.js";
-import { ObjectId } from "mongoose";
-import { Types } from "mongoose";
+import mongoose from "mongoose";
+
+const { ObjectId, Types } = mongoose;
 
 const roomHandler = (socket) => {
   socket.on(
@@ -18,7 +19,7 @@ const roomHandler = (socket) => {
           currentParticipants: [],
         });
         const room = await newRoom.save();
-        await socket.emit("room-created", {
+        socket.emit("room-created", {
           roomId: room._id,
           meetType: newMeetType,
         });
@@ -32,7 +33,7 @@ const roomHandler = (socket) => {
   socket.on("user-code-join", async ({ roomId }) => {
     const room = await Rooms.findOne({ _id: roomId });
     if (room) {
-      await socket.emit("room-exists", { roomId });
+      socket.emit("room-exists", { roomId });
     } else {
       socket.emit("room-not-exist");
     }
@@ -80,7 +81,7 @@ const roomHandler = (socket) => {
       await socket.join(roomId);
 
       console.log(`User: ${user.username} joined room: ${roomId}`);
-      await socket.broadcast.to(roomId).emit("user-joined", { userId });
+      socket.broadcast.to(roomId).emit("user-joined", { userId });
     } catch (error) {
       console.error("Error in join-room event:", error);
       socket.emit("error", { message: "Error joining room" });
@@ -124,7 +125,7 @@ const roomHandler = (socket) => {
         createdAt: 1,
       }
     ).exec();
-    await socket.emit("meets-fetched", { myMeets: meets });
+    socket.emit("meets-fetched", { myMeets: meets });
   });
 
   socket.on("delete-meet", async ({ roomId }) => {
