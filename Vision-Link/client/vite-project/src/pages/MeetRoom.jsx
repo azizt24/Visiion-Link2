@@ -36,28 +36,26 @@ const MeetRoom = () => {
     console.log('Joining room:', { userId, roomId: id });
     socket.emit('join-room', { userId, roomId: id });
 
-    console.log('Listening for user joined event');
+    console.log('Listening for user-joined event');
     socket.on("user-joined", handleUserJoin);
 
-    console.log('Requesting participants list');
+    console.log('Getting participants:', { roomId: id });
     socket.emit('get-participants', { roomId: id });
 
-    console.log('Listening for participants list');
+    console.log('Listening for participants-list event');
     socket.on("participants-list", ({ usernames, roomName }) => {
-      console.log('Received participants list:', { usernames, roomName });
+      console.log('Participants list received:', { usernames, roomName });
       setParticipants(usernames);
       setRoomName(roomName);
     });
 
-    console.log('Listening for user requested to join event');
+    console.log('Listening for user-requested-to-join event');
     socket.on("user-requested-to-join", handleUserRequestedToJoin);
   }, [socket]);
 
   useEffect(() => {
     const initAgora = async (name) => {
-      console.log('Subscribing to user-published event');
       client.on("user-published", async (user, mediaType) => {
-        console.log('User published:', { user, mediaType });
         await client.subscribe(user, mediaType);
         if (mediaType === "video") {
           setUsers((prevUsers) => [...prevUsers, user]);
@@ -67,9 +65,7 @@ const MeetRoom = () => {
         }
       });
 
-      console.log('Subscribing to user-unpublished event');
       client.on("user-unpublished", (user, mediaType) => {
-        console.log('User unpublished:', { user, mediaType });
         if (mediaType === "audio") {
           if (user.audioTrack) user.audioTrack.stop();
         }
@@ -78,15 +74,16 @@ const MeetRoom = () => {
         }
       });
 
-      console.log('Subscribing to user-left event');
       client.on("user-left", (user) => {
-        console.log('User left:', { user });
+        console.log('User left room:', { userId: user.uid, roomId: id });
         socket.emit("user-left-room", { userId: user.uid, roomId: id });
         setUsers((prevUsers) => prevUsers.filter((User) => User.uid !== user.uid));
       });
 
       try {
-        const numericUserId = parseInt(userId, 10);
+        // Convert userId to a numeric value within the valid range (0 to 10000)
+        const numericUserId = parseInt(userId, 10) % 10000;
+        
         console.log('Joining Agora channel:', { appId: config.appId, name, token: config.token, numericUserId });
         await client.join(config.appId, name, config.token, numericUserId);
       } catch (error) {
@@ -94,14 +91,15 @@ const MeetRoom = () => {
       }
 
       if (tracks) {
-        console.log('Publishing tracks:', [tracks[0], tracks[1]]);
+        console.log('Publishing tracks:', tracks);
         await client.publish([tracks[0], tracks[1]]);
       }
+
+      console.log('Setting start to true');
       setStart(true);
     };
 
     if (ready && tracks) {
-      console.log('Initializing Agora:', id);
       initAgora(id);
     }
   }, [id, client, ready, tracks]);
