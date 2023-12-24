@@ -44,33 +44,6 @@ const MeetRoom = () => {
 
   useEffect(() => {
     const initAgora = async (name) => {
-<<<<<<< HEAD
-      client.on("user-published", async (user, mediaType) => {
-        await client.subscribe(user, mediaType);
-        if (mediaType === "video") {
-          setUsers((prevUsers) => [...prevUsers, user]);
-        }
-        if (mediaType === "audio") {
-          user.audioTrack.play();
-        }
-      });
-
-      client.on("user-unpublished", (user, mediaType) => {
-        if (mediaType === "audio") {
-          if (user.audioTrack) user.audioTrack.stop();
-        }
-        if (mediaType === "video") {
-          setUsers((prevUsers) => prevUsers.filter((User) => User.uid !== user.uid));
-        }
-      });
-
-      client.on("user-left", (user) => {
-        socket.emit("user-left-room", { userId: user.uid, roomId: id });
-        setUsers((prevUsers) => prevUsers.filter((User) => User.uid !== user.uid));
-      });
-
-=======
->>>>>>> e8a6f2d59bf475b52b06e1149e86ad4d09e4fa38
       try {
         const numericUserId = parseInt(userId, 10) % 10000;
 
