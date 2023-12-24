@@ -9,7 +9,7 @@ export const AuthContextProvider = ({ children }) => {
 
   const login = async (inputs) => {
     try {
-      const res = await axios.post('http://localhost:4000/auth/login', inputs);
+      const res = await axios.post('https://vision-link-api.onrender.com/auth/login', inputs);
       const { token, user } = res.data;
 
       localStorage.setItem('userToken', token);
