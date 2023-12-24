@@ -44,6 +44,7 @@ const MeetRoom = () => {
 
   useEffect(() => {
     const initAgora = async (name) => {
+<<<<<<< HEAD
       client.on("user-published", async (user, mediaType) => {
         await client.subscribe(user, mediaType);
         if (mediaType === "video") {
@@ -68,15 +69,24 @@ const MeetRoom = () => {
         setUsers((prevUsers) => prevUsers.filter((User) => User.uid !== user.uid));
       });
 
+=======
+>>>>>>> e8a6f2d59bf475b52b06e1149e86ad4d09e4fa38
       try {
-        const numericUserId = parseInt(userId, 10);
-        await client.join(config.appId, name, config.token, numericUserId);
-      } catch (error) {
-        console.log("error", error);
-      }
+        const numericUserId = parseInt(userId, 10) % 10000;
 
-      if (tracks) await client.publish([tracks[0], tracks[1]]);
-      setStart(true);
+        console.log('Joining Agora channel:', { appId: config.appId, name, token: config.token, numericUserId });
+        await client.join(config.appId, name, config.token, numericUserId);
+
+        if (tracks) {
+          console.log('Publishing tracks:', tracks);
+          await client.publish([tracks[0], tracks[1]]);
+        }
+
+        console.log('Setting start to true');
+        setStart(true);
+      } catch (error) {
+        console.error('Error joining Agora channel:', error);
+      }
     };
 
     if (ready && tracks) {
