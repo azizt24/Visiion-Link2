@@ -10,7 +10,7 @@ import Chat from '../components/Chat';
 
 const MeetRoom = () => {
   const { id } = useParams();
-  const [roomName, setroomName] = useState('');
+  const [roomName, setRoomName] = useState('');
   const { socket, setInCall, client, users, setUsers, ready, tracks, setStart, setParticipants, start } = useContext(SocketContext);
   const userId = localStorage.getItem("userId");
 
@@ -19,35 +19,35 @@ const MeetRoom = () => {
     alert('Meet ID copied to clipboard!');
   };
 
+  const handleUserJoin = () => {
+    setInCall(true);
+  };
+
+  const handleUserRequestedToJoin = () => {
+    if (window.confirm("Do you really want to leave?")) {
+      alert("holaa");
+    }
+  };
+
   useEffect(() => {
     socket.emit('request-to-join-room', { userId, roomId: id });
     socket.emit('join-room', { userId, roomId: id });
-    socket.on("user-joined", async () => {
-      setInCall(true);
-    });
+    socket.on("user-joined", handleUserJoin);
     socket.emit('get-participants', { roomId: id });
-    socket.on("participants-list", async ({ usernames, roomName }) => {
+    socket.on("participants-list", ({ usernames, roomName }) => {
       setParticipants(usernames);
-      setroomName(roomName);
+      setRoomName(roomName);
     });
 
-    socket.on("user-requested-to-join", async ({ participantId, hostId }) => {
-      if (hostId === userId) {
-        if (window.confirm("Do you really want to leave?")) {
-          alert("holaa");
-        }
-      }
-    })
+    socket.on("user-requested-to-join", handleUserRequestedToJoin);
   }, [socket]);
 
   useEffect(() => {
-    let init = async (name) => {
+    const initAgora = async (name) => {
       client.on("user-published", async (user, mediaType) => {
         await client.subscribe(user, mediaType);
         if (mediaType === "video") {
-          setUsers((prevUsers) => {
-            return [...prevUsers, user];
-          });
+          setUsers((prevUsers) => [...prevUsers, user]);
         }
         if (mediaType === "audio") {
           user.audioTrack.play();
@@ -59,17 +59,13 @@ const MeetRoom = () => {
           if (user.audioTrack) user.audioTrack.stop();
         }
         if (mediaType === "video") {
-          setUsers((prevUsers) => {
-            return prevUsers.filter((User) => User.uid !== user.uid);
-          });
+          setUsers((prevUsers) => prevUsers.filter((User) => User.uid !== user.uid));
         }
       });
 
       client.on("user-left", (user) => {
         socket.emit("user-left-room", { userId: user.uid, roomId: id });
-        setUsers((prevUsers) => {
-          return prevUsers.filter((User) => User.uid !== user.uid);
-        });
+        setUsers((prevUsers) => prevUsers.filter((User) => User.uid !== user.uid));
       });
 
       try {
@@ -84,11 +80,7 @@ const MeetRoom = () => {
     };
 
     if (ready && tracks) {
-      try {
-        init(id);
-      } catch (error) {
-        console.log(error);
-      }
+      initAgora(id);
     }
   }, [id, client, ready, tracks]);
 
@@ -101,18 +93,13 @@ const MeetRoom = () => {
       <Participants />
       <Chat roomId={id} userId={userId} />
       <div className="meetPage-videoPlayer-container">
-        {start && tracks ?
-          <VideoPlayer tracks={tracks} users={users} />
-          : ''
-        }
+        {start && tracks ? <VideoPlayer tracks={tracks} users={users} /> : ''}
       </div>
       <div className="meetPage-controls-part">
-        {ready && tracks && (
-          <Controls tracks={tracks} />
-        )}
+        {ready && tracks && <Controls tracks={tracks} />}
       </div>
     </div>
   );
-}
+};
 
 export default MeetRoom;
