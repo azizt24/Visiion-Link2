@@ -1,14 +1,14 @@
  
-// import { Navigate } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 
-// const RouteProtector =  ({ children }) => {
+const RouteProtector =  ({ children }) => {
 
-//   if (!localStorage.getItem('userToken')){
-//         return <Navigate to='/' replace /> 
-//   }
+  if (!localStorage.getItem('userToken')){
+        return <Navigate to='/' replace /> 
+  }
 
 
-//   return children;
-// };
+  return children;
+};
 
-// export default RouteProtector;
+export default RouteProtector;

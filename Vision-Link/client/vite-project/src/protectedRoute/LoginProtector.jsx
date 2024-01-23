@@ -1,17 +1,17 @@
-// import { useEffect } from 'react'
+import { useEffect } from 'react'
 
 
-// const LoginProtector = ({children}) => {
-//   useEffect(() => {
+const LoginProtector = ({children}) => {
+  useEffect(() => {
 
-//     if (localStorage.getItem('userToken')) {
-//       window.location.href = '/';
-//     }
-//   }, [localStorage]);
+    if (localStorage.getItem('userToken')) {
+      window.location.href = '/';
+    }
+  }, [localStorage]);
 
 
-//   return children;
+  return children;
   
-// }
+}
 
-// export default LoginProtector;
+export default LoginProtector;
