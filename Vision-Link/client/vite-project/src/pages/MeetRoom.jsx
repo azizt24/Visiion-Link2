@@ -14,27 +14,32 @@ const MeetRoom = () => {
   const { socket, setInCall, client, users, setUsers, ready, tracks, setStart, setParticipants, start } = useContext(SocketContext);
   const userId = localStorage.getItem("userId");
 
+  // Define the copyMeetIdToClipboard function
   const copyMeetIdToClipboard = () => {
     navigator.clipboard.writeText(id);
     alert('Meet ID copied to clipboard!');
   };
 
   const handleUserJoin = () => {
+    console.log("User joined the room"); // Add a log when a user joins
     setInCall(true);
   };
 
   const handleUserRequestedToJoin = () => {
     if (window.confirm("Do you really want to leave?")) {
+      console.log("User confirmed leaving"); // Add a log when the user confirms leaving
       alert("holaa");
     }
   };
 
   useEffect(() => {
+    console.log("Requesting to join room:", id); // Add a log when requesting to join
     socket.emit('request-to-join-room', { userId, roomId: id });
     socket.emit('join-room', { userId, roomId: id });
     socket.on("user-joined", handleUserJoin);
     socket.emit('get-participants', { roomId: id });
     socket.on("participants-list", ({ usernames, roomName }) => {
+      console.log("Received participants list"); // Add a log when the participants list is received
       setParticipants(usernames);
       setRoomName(roomName);
     });
@@ -79,7 +84,7 @@ const MeetRoom = () => {
         {start && tracks ? <VideoPlayer tracks={tracks} users={users} /> : ''}
       </div>
       <div className="meetPage-controls-part">
-        {ready && tracks && <Controls tracks={tracks} />}
+        {ready && tracks ? <Controls tracks={tracks} /> : ''}
       </div>
     </div>
   );
