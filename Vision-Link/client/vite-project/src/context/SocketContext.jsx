@@ -7,7 +7,7 @@ import { useClient, useMicrophoneAndCameraTracks } from '../AgoraSetup'
  
 export const SocketContext = createContext();
 
-const WS = 'http://localhost:4000';
+const WS = 'https://vision-link-api.onrender.com';
 
 const socket = socketIoClient(WS);
 
@@ -63,5 +63,3 @@ export const SocketContextProvider =  ({children}) => {
 }
 
 
-
- //export default socketContext
