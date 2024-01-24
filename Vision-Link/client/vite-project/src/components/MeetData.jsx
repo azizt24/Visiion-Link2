@@ -18,10 +18,12 @@ const MeetData = () => {
     };
 
     socket.on('room-deleted', ({ roomId }) => {
+      // Update UI to remove the deleted meeting
       setMyMeetsState((prevMeets) => prevMeets.filter((meet) => meet._id !== roomId));
     });
 
     socket.on('meet-details-updated', ({ roomId }) => {
+      // Update UI to reflect the updated meeting details
       setMyMeetsState((prevMeets) =>
         prevMeets.map((meet) =>
           meet._id === roomId
