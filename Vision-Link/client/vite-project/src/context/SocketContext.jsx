@@ -4,7 +4,6 @@ import socketIoClient from 'socket.io-client';
 import { useClient, useMicrophoneAndCameraTracks } from '../AgoraSetup'
 
 
-
  
 export const SocketContext = createContext();
 
@@ -65,4 +64,4 @@ export const SocketContextProvider =  ({children}) => {
 
 
 
- //export default socketContext
+// export default socketContext
